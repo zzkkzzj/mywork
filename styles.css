@@ -1,0 +1,21 @@
+
+h1{
+  color: #ccffcc
+}
+
+
+body {
+  background-color: pink;
+  margin: 0px;
+}
+
+.navbar {
+  background-color: black;
+  color: white;
+  padding: 15px;
+}
+
+#mylink {
+  float: right;
+  color: white;
+}
