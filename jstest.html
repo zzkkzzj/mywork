@@ -1,0 +1,48 @@
+<html>
+
+  <head>
+  </head>
+  <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+  <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <body>
+    <nav>
+      <div class="nav-wrapper">
+        <a href="#" class="brand-logo">Logo</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href="sass.html">Sass</a></li>
+          <li><a href="badges.html">Components</a></li>
+          <li><a href="collapsible.html">JavaScript</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <input id='input'>
+    <button onclick="fillList()">Add</button>
+    <div id="output"></div>
+
+  </body>
+
+  <script>
+    var mylist = [];
+
+    function fillList() {
+      var iHandle = document.getElementById('input');
+      var oHandle = document.getElementById('output');
+      mylist.push(iHandle.value);
+
+      var myHTML = "<ul class='collection'>";
+
+      for (i=0;i<mylist.length;i++){
+        myHTML = myHTML + mylist[i] + "<br>";
+      }
+      myHTML = myHTML + "</ul>"
+      oHandle.innerHTML = myHTML;
+      iHandle.value = "";
+    }
+  </script>
+
+</html>
