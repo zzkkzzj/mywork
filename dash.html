@@ -6,18 +6,20 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script src='https://unpkg.com/axios@0.21.1/dist/axios.min.js'></script>
   </head>
 
   <body>
     <nav>
       <div class="nav-wrapper blue white-text">
-        <a href="http://www.cnn.com" class="brand-logo white-text" style="margin-left:10px;">
+        <a href="About.html" class="brand-logo white-text" style="margin-left:10px;">
           <i class="large material-icons">adb</i>
         </a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-          <li><a href="sass.html">Sass</a></li>
-          <li><a href="badges.html">Components</a></li>
-          <li><a href="collapsible.html">JavaScript</a></li>
+          <li><a href="https://overwatch2.playoverwatch.com/en-us/trailer">Sass</a></li>
+          <li><a href="https://www.joinhoney.com/">Components</a></li>
+          <li><a href="https://www.javascript.com/">JavaScript</a></li>
         </ul>
       </div>
     </nav>
@@ -28,9 +30,12 @@
       <div class="col s12 m6">
         <div class="card">
           <div class="card-content">
-            <span class="card-title">Card Title</span>
-            <p>I am a very simple card. I am good at containing small bits of information.
-            I am convenient because I require little markup to use effectively.</p>
+            <span class="card-title" id='geo'></span>
+            <div id='weather'>
+              <div class="progress">
+                  <div class="indeterminate"></div>
+              </div>              
+            </div>
           </div>
         </div>
       </div>
@@ -72,6 +77,32 @@
   </body>
 
   <script>
+
+    axios.get('https://ipapi.co/json/')
+      .then(response => {
+        console.log(response.data);
+        var lat = response.data.latitude;
+        var lon = response.data.longitude;
+        geoData(response.data);
+        var wstring = 'https://www.7timer.info/bin/civillight.php?lon=' + lon + '&lat=' + lat + '&unit=metric&output=json';
+        weatherData(wstring);
+      })
+
+    function geoData(response) {
+      var gHandle = document.getElementById('geo')
+      gHandle.innerHTML = response.city;
+    }
+
+    function weatherData(wstring) {
+      axios.get(wstring)
+        .then(response => {
+          console.log(response);
+          var gHandle = document.getElementById('weather')
+          var myHTML = 'Todays weather is ' + response.data.dataseries[0].weather;
+          gHandle.innerHTML = myHTML;
+        })
+    }
+
   </script>
 
 </html>
