@@ -8,8 +8,10 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- get axios -->
     <script src='https://unpkg.com/axios@0.21.1/dist/axios.min.js'></script>
+    <!-- Leaflet.js mapping libraries -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Erik Flower's weather icons -->
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css'>
 
     <style>
@@ -18,6 +20,9 @@
         font-size: 40px;
       }
 
+      .card {
+        height:300px;
+      }
     </style>
   </head>
 
@@ -63,7 +68,7 @@
         <div class="card">
           <div class="card-content">
             <span class="card-title">Map</span>
-            <div id='map' style="width:100%; height:50%"></div>
+            <div id='map' style="width:100%; height:60%"></div>
           </div>
         </div>
       </div>
@@ -116,7 +121,7 @@
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
-      L.circle([lat, lon],{color:'blue',radios:1000}).addTo(map);
+      L.circle([lat,lon],{color:'blue',radius:200}).addTo(map).bindPopup('<h6>' + city + '</h6>');
 
       L.marker([lat, lon]).addTo(map)
           .bindPopup('<h6>' + city + '</h6>')
@@ -135,7 +140,7 @@
           var w = response.data.dataseries[0];
           var gHandle = document.getElementById('weather');
           var myHTML = "<p>Todays weather is " + w.weather + "</p>";
-          myHTML = myHTML + "<div id='wicon'<i class='wi wi-day-cloudy'></i>  " + w.temp2m.max + '</div>';
+          myHTML = myHTML + "<div id='wicon'><i class='wi wi-day-cloudy'></i>  " + w.temp2m.max + "</div>";
           gHandle.innerHTML = myHTML;
         })
     }
