@@ -6,10 +6,15 @@
     <!-- Compiled and minified JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- get axios -->
     <script src='https://unpkg.com/axios@0.21.1/dist/axios.min.js'></script>
+    <!-- Leaflet.js mapping libraries -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <!-- Erik Flower's weather icons -->
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css'>
+    <!-- chart.js import -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 
     <style>
       #wicon {
@@ -18,7 +23,7 @@
       }
 
       .card {
-        height:300px;
+        height:400px;
       }
     </style>
   </head>
@@ -65,7 +70,7 @@
         <div class="card">
           <div class="card-content">
             <span class="card-title">Map</span>
-            <div id='map' style="width:100%; height:60%"></div>
+            <div id='map' style="width:100%; height:75%"></div>
           </div>
         </div>
       </div>
@@ -77,18 +82,16 @@
       <div class="col s12 m6">
         <div class="card">
           <div class="card-content">
-            <span class="card-title">Card Title</span>
-            <p>I am a very simple card. I am good at containing small bits of information.
-            I am convenient because I require little markup to use effectively.</p>
+            <span class="card-title">Line graph</span>
+            <canvas id="line-chart" width="100%" height="35%"></canvas>
           </div>
         </div>
       </div>
       <div class="col s12 m6">
         <div class="card">
           <div class="card-content">
-            <span class="card-title">Card Title</span>
-            <p>I am a very simple card. I am good at containing small bits of information.
-            I am convenient because I require little markup to use effectively.</p>
+            <span class="card-title">Wind speed</span>
+            <canvas id="bar-chart" width="100%" height="35%"></canvas>
           </div>
         </div>
       </div>
@@ -110,6 +113,73 @@
         weatherData(wstring);
         mapIt(lat,lon,city);
       })
+
+    function barChart(wdata) {
+      // Bar chart
+      var labs = [];
+      var winds = [];
+      for (i=0;i<wdata.length;i++) {
+        labs.push(wdata[i].date);
+        winds.push(wdata[i].wind10m_max);
+      }
+      new Chart(document.getElementById("bar-chart"), {
+          type: 'bar',
+          data: {
+            labels: labs,
+            datasets: [
+              {
+                label: "Wind speed",
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                data: winds
+              }
+            ]
+          },
+          options: {
+            legend: { display: false },
+            title: {
+              display: false,
+              text: ''
+            }
+          }
+      });
+    }
+
+    function lineGraph(wdata) {
+
+      var labs = [];
+      var highs = [];
+      var lows = [];
+      for (i=0;i<wdata.length;i++) {
+        labs.push(wdata[i].date);
+        highs.push(wdata[i].temp2m.max);
+        lows.push(wdata[i].temp2m.min);
+      }
+
+      new Chart(document.getElementById("line-chart"), {
+        type: 'line',
+        data: {
+          labels: labs,
+          datasets: [{
+              data: highs,
+              label: "Highs",
+              borderColor: "#3e95cd",
+              fill: false
+            }, {
+              data: lows,
+              label: "Lows",
+              borderColor: "#8e5ea2",
+              fill: false
+            }
+          ]
+        },
+        options: {
+          title: {
+            display: false,
+            text: ''
+          }
+        }
+      });
+    }
 
     function mapIt(lat,lon,city) {
       var map = L.map('map').setView([lat, lon], 13);
@@ -139,6 +209,8 @@
           var myHTML = "<p>Todays weather is " + w.weather + "</p>";
           myHTML = myHTML + "<div id='wicon'><i class='wi wi-day-cloudy'></i>  " + w.temp2m.max + "</div>";
           gHandle.innerHTML = myHTML;
+          lineGraph(response.data.dataseries);
+          barChart(response.data.dataseries);
         })
     }
 
