@@ -8,22 +8,21 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- get axios -->
     <script src='https://unpkg.com/axios@0.21.1/dist/axios.min.js'></script>
-    <!-- Leaflet.js mapping libraries -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <!-- Erik Flower's weather icons -->
-    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css'>
-    <!-- chart.js import -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+      integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+      crossorigin=""></script>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.12/css/weather-icons.min.css'></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 
-    <style>
-      #wicon {
-        padding: 5px;
-        font-size: 40px;
-      }
+    <script src="weather.json"></script>
 
+
+    <style>
       .card {
-        height:400px;
+        height: 400px;
       }
     </style>
   </head>
@@ -32,12 +31,10 @@
     <nav>
       <div class="nav-wrapper blue white-text">
         <a href="http://www.cnn.com" class="brand-logo white-text" style="margin-left:10px;">
-          <i class="large material-icons">airline_seat_flat</i>
+          <i class="large material-icons">wb_sunny</i> My community page
         </a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-          <li><a href="sass.html">Sass</a></li>
-          <li><a href="badges.html">Components</a></li>
-          <li><a href="collapsible.html">JavaScript</a></li>
+          <li><a href="aboutme.html">About</a></li>
         </ul>
       </div>
     </nav>
@@ -65,12 +62,11 @@
           </div>
         </div>
       </div>
-
       <div class="col s12 m6">
         <div class="card">
           <div class="card-content">
             <span class="card-title">Map</span>
-            <div id='map' style="width:100%; height:75%"></div>
+            <div id='map' style="width:100%;height:70%"></div>
           </div>
         </div>
       </div>
@@ -78,20 +74,24 @@
     </div> <!-- end of 2nd row -->
 
     <div class="row">
+      <div id='photos'></div>
+    </div>
+
+    <div class="row">
 
       <div class="col s12 m6">
         <div class="card">
           <div class="card-content">
-            <span class="card-title">Line graph</span>
-            <canvas id="line-chart" width="100%" height="35%"></canvas>
+            <span class="card-title">Temperatures</span>
+            <canvas id="line-chart" width="100%" height="50%"></canvas>
           </div>
         </div>
       </div>
       <div class="col s12 m6">
         <div class="card">
           <div class="card-content">
-            <span class="card-title">Wind speed</span>
-            <canvas id="bar-chart" width="100%" height="35%"></canvas>
+            <span class="card-title">Winds at 10m</span>
+            <canvas id="bar-chart" width="100%" height="50%"></canvas>
           </div>
         </div>
       </div>
@@ -107,21 +107,50 @@
         console.log(response.data);
         var lat = response.data.latitude;
         var lon = response.data.longitude;
-        var city = response.data.city;
         geoData(response.data);
         var wstring = 'https://www.7timer.info/bin/civillight.php?lon=' + lon + '&lat=' + lat + '&unit=metric&output=json';
         weatherData(wstring);
-        mapIt(lat,lon,city);
+        mapIt(lat,lon,response.data.city);
+        getPhotos(lat,lon);
       })
 
+      function getPhotos(lat,lon) {
+        // awesome API for COVID
+        axios.get("https://commons.wikimedia.org/w/api.php?format=json&action=query&generator=geosearch&ggsprimary=all&ggsnamespace=6&ggsradius=5000&ggscoord=" + lat + "|" + lon + "&ggslimit=4&prop=imageinfo&iilimit=1&iiprop=url&iiurlheight=250&origin=*")
+          .then(response => {
+            // change object data to an array for easy looping
+            var arr = Object.values(response.data.query.pages);
+            var divHandle = document.getElementById('photos');
+            myHTML = "";
+            for (i=0;i<arr.length;i++) {
+              myHTML = myHTML + "<div class='col s12 m3'><div class='card' style='padding:10px'>";
+              myHTML = myHTML + "<img src='" + arr[i].imageinfo['0'].thumburl + "' style='width: 100%; height:100%'>";
+              myHTML = myHTML + "</div></div>";
+            }
+            divHandle.innerHTML = myHTML;
+          })
+      }
+
+    function mapIt(lat,lon,city) {
+        var map = L.map('map').setView([lat, lon], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var popup = "<h6>" + city + "</h6><p>" + lat + "," + lon + "</p>";
+        L.circle([lat,lon],{color:'red',radius:200}).addTo(map).bindPopup(popup);
+    }
+
     function barChart(wdata) {
-      // Bar chart
-      var labs = [];
-      var winds = [];
+
+      labs = [];
+      winds = [];
       for (i=0;i<wdata.length;i++) {
         labs.push(wdata[i].date);
         winds.push(wdata[i].wind10m_max);
       }
+
       new Chart(document.getElementById("bar-chart"), {
           type: 'bar',
           data: {
@@ -129,7 +158,7 @@
             datasets: [
               {
                 label: "Wind speed",
-                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#e8c3b9","#c45850"],
                 data: winds
               }
             ]
@@ -139,22 +168,29 @@
             title: {
               display: false,
               text: ''
+            },
+            scales: {
+                yAxes: [{
+                display: true,
+                ticks: {
+                  beginAtZero: true,
+                }
+                }]
             }
           }
       });
     }
 
-    function lineGraph(wdata) {
+    function lineChart(wdata) {
 
-      var labs = [];
-      var highs = [];
-      var lows = [];
+      labs = [];
+      highs = [];
+      lows = [];
       for (i=0;i<wdata.length;i++) {
         labs.push(wdata[i].date);
         highs.push(wdata[i].temp2m.max);
         lows.push(wdata[i].temp2m.min);
       }
-
       new Chart(document.getElementById("line-chart"), {
         type: 'line',
         data: {
@@ -179,39 +215,36 @@
           }
         }
       });
+
     }
-
-    function mapIt(lat,lon,city) {
-      var map = L.map('map').setView([lat, lon], 13);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
-
-      L.circle([lat,lon],{color:'blue',radius:200}).addTo(map).bindPopup('<h6>' + city + '</h6>');
-
-      L.marker([lat, lon]).addTo(map)
-          .bindPopup('<h6>' + city + '</h6>')
-          .openPopup();
-    }
-
     function geoData(response) {
       var gHandle = document.getElementById('geo');
       gHandle.innerHTML = response.city;
     }
 
     function weatherData(wstring) {
-      axios.get(wstring)
-        .then(response => {
-          console.log(response);
-          var w = response.data.dataseries[0];
+      //axios.get(wstring)
+        //.then(response => {
+          //console.log(response);
+          var response = wdata;
+          //var d = response.data.dataseries[0]
+          var d = response.dataseries[0]
+
+          if (d.weather == 'cloudy') {
+            var icon = "<i class='wi wi-day-cloudy'></i>";
+          } else {
+            var icon = "<i class='wi wi-day-sunny'></i>";
+          }
           var gHandle = document.getElementById('weather');
-          var myHTML = "<p>Todays weather is " + w.weather + "</p>";
-          myHTML = myHTML + "<div id='wicon'><i class='wi wi-day-cloudy'></i>  " + w.temp2m.max + "</div>";
+          var myHTML = "<p>Today is " + d.date + ". The weather is " + d.weather + "</p>";
+          myHTML = myHTML + "<div style='padding:5px; font-size:40px;'>" + icon + "  " + d.temp2m.max + "</div>"
           gHandle.innerHTML = myHTML;
-          lineGraph(response.data.dataseries);
-          barChart(response.data.dataseries);
-        })
+
+          //lineChart(response.data.dataseries);
+          //barChart(response.data.dataseries);
+          lineChart(response.dataseries);
+          barChart(response.dataseries);
+        //})
     }
 
 
