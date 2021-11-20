@@ -135,7 +135,7 @@
     function mapIt(lat,lon,city) {
         var map = L.map('map').setView([lat, lon], 13);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https:{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
@@ -224,11 +224,11 @@
     }
 
     function weatherData(wstring) {
-      //axios.get(wstring)
-        //.then(response => {
-          //console.log(response);
+      axios.get(wstring)
+        .then(response => {
+          console.log(response);
           var response = wdata;
-          //var d = response.data.dataseries[0]
+          var d = response.data.dataseries[0]
           var d = response.dataseries[0]
 
           if (d.weather == 'cloudy') {
@@ -241,11 +241,11 @@
           myHTML = myHTML + "<div style='padding:5px; font-size:40px;'>" + icon + "  " + d.temp2m.max + "</div>"
           gHandle.innerHTML = myHTML;
 
-          //lineChart(response.data.dataseries);
-          //barChart(response.data.dataseries);
+          lineChart(response.data.dataseries);
+          barChart(response.data.dataseries);
           lineChart(response.dataseries);
           barChart(response.dataseries);
-        //})
+        })
     }
 
 
